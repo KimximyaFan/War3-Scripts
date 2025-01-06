@@ -1,6 +1,29 @@
 library Base
 
 
+/*
+Create_Rect
+Timer_Clear
+Trigger_Clear
+Group_Clear
+Set_Unit_Duration
+Get_Mana
+Set_Mana
+Get_HP
+Set_HP
+GRR
+Dist
+Angle
+Polar_Y
+Polar_X
+Mod
+Hero_Check
+*/
+
+function Is_Terrain_Pathable takes real x, real y returns boolean
+    return not IsTerrainPathable(x, y, PATHING_TYPE_WALKABILITY)
+endfunction
+
 function Get_Random_Location_In_Range takes real x, real y, real range returns location
     local real theta = 2 * bj_PI * GetRandomReal(0.0, 1.0)
     local real r_random = range * SquareRoot(GetRandomReal(0.0, 1.0))
