@@ -1,0 +1,21 @@
+globals
+    
+    hashtable SHT = InitHashtable()
+    
+    constant integer PLAYER_NUM_PAD = 1
+    
+    boolean array is_load_summon[13]
+    
+    string SUMMON_OBJECT = "SUMMON_OBJECT"
+    
+    constant integer IS_SUMMON_SAVED = 0
+    constant integer SUMMON_EXP = 1
+    constant integer SUMMON_INVEN_0 = 2
+    constant integer SUMMON_INVEN_1 = 3
+    constant integer SUMMON_INVEN_2 = 4
+    constant integer SUMMON_INVEN_3 = 5
+    constant integer SUMMON_INVEN_4 = 6
+    constant integer SUMMON_INVEN_5 = 7
+    constant integer BAG_INVEN_WEAPON = 8
+    
+endglobals
