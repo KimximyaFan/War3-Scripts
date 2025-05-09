@@ -7,6 +7,8 @@ private function Save_Object_Character_Data takes integer pid returns nothing
     local string server_state
     local integer i
     local integer value
+
+    // 
     
     // 만약 소환물이 존재 한다면
     if summon != null then
