@@ -1,6 +1,4 @@
 library TimerTools
-    // 원본은 TimerGetRemaining()에 정수를 숨겨 전달했지만,
-    // 여기서는 Hashtable에 명시적으로 보관한다.
     struct TimerTools
         private static hashtable g_Data = null
 

@@ -1,7 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
-// SaveSelectDialog
-// 제공자의 FDF/TOC 프레임 이름을 그대로 사용한다.
-///////////////////////////////////////////////////////////////////////////
+
 library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
     struct SaveSelectDialog
         private static constant integer SLOT_SIZE_PER_PAGE = 8
@@ -21,6 +18,7 @@ library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
         private static integer g_NewCharConfirmButton = 0
         private static integer g_NewCharCancelButton = 0
         private static boolean m_NewCharConfirm = false
+        private static string m_NewCharPendingName = ""
 
         static method BindLoadButtonEvent takes code eventAction returns nothing
             local integer i = 0
@@ -84,6 +82,10 @@ library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
             local ServerPlayerInfo info
             local integer count
 
+            if GetLocalPlayer() != p then
+                return
+            endif
+
             call SaveLoadManager.UpdateServerPlayerInfo(p)
             set info = SaveLoadManager.GetServerPlayerInfo(p)
             set count = info.GetCharacterCount()
@@ -106,6 +108,7 @@ library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
             local player p = DzGetTriggerUIEventPlayer()
             if GetLocalPlayer() == p then
                 set thistype.m_NewCharConfirm = false
+                set thistype.m_NewCharPendingName = ""
                 call DzFrameSetText(thistype.g_NewCharTitle, "세이브 이름을 입력하세요")
                 call DzFrameSetText(thistype.g_NewCharEditBox, "")
                 call DzFrameSetText(thistype.g_NewCharTooltip, "")
@@ -141,37 +144,46 @@ library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
             local player p = DzGetTriggerUIEventPlayer()
             local ServerPlayerInfo info = SaveLoadManager.GetServerPlayerInfo(p)
             local integer count = info.GetCharacterCount()
-            local string name = DzFrameGetText(thistype.g_NewCharEditBox)
+            local string name = ""
             local integer i = 0
 
             if GetLocalPlayer() == p then
                 if thistype.m_NewCharConfirm then
-                    call DzSyncData("NewChar", name)
-                    call DzFrameShow(thistype.g_NewCharParent, false)
-                    call DzFrameShow(thistype.g_SlotParent, true)
-                elseif name == null or name == "" then
-                    call DzFrameSetText(thistype.g_NewCharTooltip, "빈 이름은 사용할 수 없어요!")
-                else
-                    // 중복 이름은 기존 데이터 초기화로 오해하기 쉬워 안전하게 거부한다.
-                    loop
-                        exitwhen i >= count
-                        if info.GetCharacterName(i) == name then
-                            call DzFrameSetText(thistype.g_NewCharTooltip, "이미 존재하는 세이브 이름입니다.")
-                            set p = null
-                            return
-                        endif
-                        set i = i + 1
-                    endloop
+                    set name = thistype.m_NewCharPendingName
+                    if name != "" then
+                        call DzFrameSetFocus(thistype.g_NewCharEditBox, false)
+                        call DzFrameShow(thistype.g_NewCharParent, false)
 
-                    set thistype.m_NewCharConfirm = true
-                    call DzFrameSetSize(thistype.g_NewCharParent, 0.3, 0.155)
-                    call DzFrameSetText(thistype.g_NewCharTitle, "정말 이 이름을 사용하시겠어요?")
-                    call DzFrameShow(thistype.g_NewCharLabel, true)
-                    call DzFrameShow(thistype.g_NewCharEditBox, false)
-                    call DzFrameSetText(thistype.g_NewCharLabel, name)
-                    call DzFrameSetText(thistype.g_NewCharTooltip, "")
-                    call DzFrameSetText(thistype.g_NewCharConfirmButton, "예")
-                    call DzFrameSetText(thistype.g_NewCharCancelButton, "아니오")
+                        call DzSyncData("NewChar", name)
+                    endif
+                else
+                    set name = DzFrameGetText(thistype.g_NewCharEditBox)
+
+                    if name == null or name == "" then
+                        call DzFrameSetText(thistype.g_NewCharTooltip, "빈 이름은 사용할 수 없어요!")
+                    else
+                        loop
+                            exitwhen i >= count
+                            if info.GetCharacterName(i) == name then
+                                call DzFrameSetText(thistype.g_NewCharTooltip, "이미 존재하는 세이브 이름입니다.")
+                                set p = null
+                                return
+                            endif
+                            set i = i + 1
+                        endloop
+
+                        set thistype.m_NewCharPendingName = name
+                        set thistype.m_NewCharConfirm = true
+                        call DzFrameSetFocus(thistype.g_NewCharEditBox, false)
+                        call DzFrameSetSize(thistype.g_NewCharParent, 0.3, 0.155)
+                        call DzFrameSetText(thistype.g_NewCharTitle, "정말 이 이름을 사용하시겠어요?")
+                        call DzFrameShow(thistype.g_NewCharLabel, true)
+                        call DzFrameShow(thistype.g_NewCharEditBox, false)
+                        call DzFrameSetText(thistype.g_NewCharLabel, name)
+                        call DzFrameSetText(thistype.g_NewCharTooltip, "")
+                        call DzFrameSetText(thistype.g_NewCharConfirmButton, "예")
+                        call DzFrameSetText(thistype.g_NewCharCancelButton, "아니오")
+                    endif
                 endif
             endif
             set p = null
@@ -182,6 +194,7 @@ library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
             if GetLocalPlayer() == p then
                 if thistype.m_NewCharConfirm then
                     set thistype.m_NewCharConfirm = false
+                    set thistype.m_NewCharPendingName = ""
                     call DzFrameSetSize(thistype.g_NewCharParent, 0.3, 0.175)
                     call DzFrameSetText(thistype.g_NewCharTitle, "세이브 이름을 입력하세요")
                     call DzFrameShow(thistype.g_NewCharEditBox, true)
@@ -189,6 +202,8 @@ library SaveSelectDialog requires Settings, SaveLoadData, SaveLoadLibrary
                     call DzFrameSetText(thistype.g_NewCharConfirmButton, "결정")
                     call DzFrameSetText(thistype.g_NewCharCancelButton, "취소")
                 else
+                    set thistype.m_NewCharPendingName = ""
+                    call DzFrameSetFocus(thistype.g_NewCharEditBox, false)
                     call DzFrameSetText(thistype.g_NewCharEditBox, "")
                     call DzFrameSetText(thistype.g_NewCharTooltip, "")
                     call DzFrameShow(thistype.g_NewCharParent, false)

@@ -1,8 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
-// SaveLoadLibrary
-// 1) 캐릭터 슬롯 목록 조회
-// 2) 로컬 JNObject Get 결과를 DzSyncData로 모든 클라이언트에 동기화
-///////////////////////////////////////////////////////////////////////////
+
 library SaveLoadLibrary requires Settings, SaveLoadData
 
     struct ServerPlayerInfo
@@ -92,8 +88,6 @@ library SaveLoadLibrary requires Settings, SaveLoadData
             return LoadBoolean(thistype.g_Cache, GetPlayerId(p), StringHash(key))
         endmethod
 
-        // field 이름에는 '§' 문자를 사용하지 않는다.
-        // 문자열 value는 Base64 처리하여 delimiter 충돌을 막는다.
         static method SyncStr takes string key, string value returns nothing
             if value == null then
                 set value = ""

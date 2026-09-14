@@ -1,8 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
-// SaveLoadData
-// 로그인 세션에서 필요한 최소 상태만 보관한다.
-// ClassicSave용 title/code 배열은 전부 제거했다.
-///////////////////////////////////////////////////////////////////////////
+
 library SaveLoadData requires Settings
     struct SaveLoadData
         private static string array g_ServerName[Settings.PLAYER_COUNT]

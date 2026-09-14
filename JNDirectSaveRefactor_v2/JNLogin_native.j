@@ -2,7 +2,6 @@ globals
     constant integer JN_OSKEY_TAB = 0x09
 endglobals
 
-// JN/Dz 런타임 의존성.
 //! import "DzAPISync.j"
 //! import "DzAPIFrameHandle.j"
 //! import "JNServer.j"

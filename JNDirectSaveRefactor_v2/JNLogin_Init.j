@@ -1,16 +1,12 @@
-///////////////////////////////////////////////////////////////////////////
-// JNLogin_Init
-// 맵에 넣은 뒤 InitTrig_JNLogin_Init()가 실행되게 하면 된다.
-// GUI 트리거의 Custom Script로 직접 호출해도 된다.
-///////////////////////////////////////////////////////////////////////////
+
+scope JNLoginInit initializer Init
+
 function JNLogin_MainSetup takes nothing returns nothing
     call JNUse()
     call JNObjectMapInit(Settings.API_MAP_CODE, Settings.API_SECRET_KEY)
 endfunction
 
 function JNLogin_CreateUI takes nothing returns nothing
-    // LoginDialogUI 내부에서 UI\\LoginDialog.toc 로드.
-    // 제공받은 .toc/.fdf/.blp 파일은 원래 경로 그대로 맵에 import 해야 한다.
     call LoginDialogUI.CreateLoginDialogUI()
     call LoginDialogUI.HideMainFrame(GetLocalPlayer())
 
@@ -30,7 +26,6 @@ function JNLogin_TryAutoLogin takes nothing returns nothing
     endloop
 endfunction
 
-// 테스트/개발 편의용 채팅 명령. 필요 없으면 이 함수와 SetupChatEvent를 삭제 가능.
 function JNLogin_ChatAction takes nothing returns nothing
     local player p = GetTriggerPlayer()
     local string chat = GetEventPlayerChatString()
@@ -70,7 +65,7 @@ function JNLogin_SetupChatEvent takes nothing returns nothing
     set t = null
 endfunction
 
-function InitTrig_JNLogin_Init takes nothing returns nothing
+function Init takes nothing returns nothing
     local trigger t
 
     set t = CreateTrigger()
@@ -91,3 +86,5 @@ function InitTrig_JNLogin_Init takes nothing returns nothing
 
     set t = null
 endfunction
+
+endscope

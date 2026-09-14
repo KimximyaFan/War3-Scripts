@@ -1,20 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
-// JNDirectSave
-// ClassicSave 없이 JNObject User/Character 필드를 직접 저장/로드한다.
-//
-// [개발자가 주로 쓰는 API]
-//   RegisterCharacterInt/Real/String/Bool(field)
-//   RegisterUserInt/Real/String/Bool(field)       // 서버 운영값 읽기에도 사용
-//
-//   SetCharacterInt/Real/String/Bool(p, field, value)
-//   SaveCharacter(p)
-//
-//   GetCharacterInt/Real/String/Bool(p, field)   // 로드 콜백 안에서 사용
-//   GetUserInt/Real/String/Bool(p, field)         // 로드 콜백 안에서 사용
-//
-// 운영자 지급 Aura/VIP/Ban 같은 값은 User field로 두고,
-// 게임에서는 RegisterUser... + GetUser... 만 사용하는 것을 권장한다.
-///////////////////////////////////////////////////////////////////////////
+
 library JNDirectSave requires Settings, TimerTools, SaveLoadData, SaveLoadLibrary
     struct JNDirectSave
         private static constant integer TYPE_INT    = 1
@@ -100,10 +84,6 @@ library JNDirectSave requires Settings, TimerTools, SaveLoadData, SaveLoadLibrar
             call thistype.RegisterUserField(field, TYPE_BOOL)
         endmethod
 
-        // ------------------------------------------------------------------
-        // CHARACTER WRITE API
-        // GetLocalPlayer 가드를 내부에서 처리하므로 호출자는 그대로 호출하면 된다.
-        // ------------------------------------------------------------------
         static method SetCharacterInt takes player p, string field, integer value returns nothing
             local string userId = SaveLoadData.GetPlayerServerName(p)
             if GetLocalPlayer() == p and userId != "" then
@@ -140,13 +120,10 @@ library JNDirectSave requires Settings, TimerTools, SaveLoadData, SaveLoadLibrar
                 return
             endif
             if GetLocalPlayer() == p then
-                // 중요: ClearField()를 호출하지 않는다.
-                // 직접 관리하지 않는 서버 필드를 보존하기 위함.
                 call JNObjectCharacterSave(Settings.API_MAP_CODE, userId, Settings.API_SECRET_KEY, characterName)
             endif
         endmethod
 
-        // 필요할 때만 사용. 운영자 전용 User 필드를 게임에서 저장하지 않는 것을 권장.
         static method SetUserInt takes player p, string field, integer value returns nothing
             local string userId = SaveLoadData.GetPlayerServerName(p)
             if GetLocalPlayer() == p and userId != "" then
@@ -186,11 +163,6 @@ library JNDirectSave requires Settings, TimerTools, SaveLoadData, SaveLoadLibrar
             endif
         endmethod
 
-        // ------------------------------------------------------------------
-        // LOADED VALUE API
-        // 이 값들은 DzSyncData를 거친 동기화 캐시이므로 모든 클라이언트가 동일하게 읽는다.
-        // SaveLoad.OnLoadComplete -> GameSaveData.ApplyLoaded 안에서 사용한다.
-        // ------------------------------------------------------------------
         static method GetCharacterInt takes player p, string field returns integer
             return SaveLoadCache.RetrieveInt(p, thistype.CharacterCacheKey(field))
         endmethod
@@ -217,9 +189,6 @@ library JNDirectSave requires Settings, TimerTools, SaveLoadData, SaveLoadLibrar
             return SaveLoadCache.RetrieveBool(p, thistype.UserCacheKey(field))
         endmethod
 
-        // ------------------------------------------------------------------
-        // CHARACTER INIT / LOAD
-        // ------------------------------------------------------------------
         static method InitCharacter takes player p, string characterName returns nothing
             local string userId = SaveLoadData.GetPlayerServerName(p)
             if userId == "" or characterName == "" then
@@ -327,7 +296,6 @@ library JNDirectSave requires Settings, TimerTools, SaveLoadData, SaveLoadLibrar
                 return
             endif
 
-            // ApplyLoaded()가 캐시를 읽어야 하므로 Clear보다 먼저 호출.
             call SaveLoad.OnLoadComplete(p)
             call SaveLoadCache.ClearPreloadData(p)
             call TimerTools.DestroyTimerEx(t)
